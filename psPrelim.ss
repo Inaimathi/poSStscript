@@ -21,6 +21,10 @@
   (path (moveto (car pts))
         (apply string-append (map lineto (cdr pts)))))
 
+(define (curve-shape pts)
+  (path (moveto (car pts))
+        (apply string-append (map curveto(cdr pts)))))
+
 (define (rounded-rect pt width height radius)
   (let* ((rad (cond ((number? radius) (build-list 4 (lambda (n) radius)))
                     ((= 2 (length radius)) (list (cadr radius) (car radius) (car radius) (cadr radius)))
@@ -47,8 +51,13 @@
 (define (circle pt radius)
   (path (arc pt radius 0 360)))
 
-;; (ps (0 0 612 792)
-;;     (page (stroke (circle '(200 . 300) 100)))
+;; (ps #f (0 0 612 792)
+;;     (page 
+;;      (translate 500 500)
+;;      (for 0 10 360
+;;           (scale 1.1 1.1)
+;;           (with (rotate)
+;;                 (stroke (circle '(200 . 300) 100)))))
 ;;     (page (stroke (circle '(150 . 50) 150)))
 ;;     (page (stroke (circle '(50 . 0) 200))))
 

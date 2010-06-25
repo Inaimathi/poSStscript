@@ -3,7 +3,7 @@
 
 (define (page . body)
   (lambda (page-num page-total b1 b2 b3 b4)
-    (string-append (format "%%Page: ~a ~a~n%%BeginPageSetup~n%%PageBoundingBox: ~a ~a ~a ~a~n%%EndPageSetup~n~n"
+    (string-append (format "%%Page: ~a ~a~n%%BeginPageSetup~n%%PageBoundingBox: ~a ~a ~a ~a~n%%EndPageSetup~n"
                            page-num page-total b1 b2 b3 b4)
                    (apply string-append body)
                    "showpage\n\n")))
@@ -11,14 +11,13 @@
 (define-macro (ps filename bounding-box . pages)
   (define (apply-page page num)
     `(,page ,num ,(length pages) ,@bounding-box))
-  `(display-to-file
-    (apply string-append
-           (cons (format "%!PS-Adobe-3.0~n%%Pages: ~a~n%%BoundingBox: ~a ~a ~a ~a~n%%DocumentData: Clean7Bit~n%%LanguageLevel: 2~n~n"
-                         ,(length pages) ,@bounding-box)
-                 (list ,@(map apply-page
-                              pages
-                              (build-list (length pages) (lambda (n) (+ 1 n)))))))
-    ,(build-path filename) #:mode 'text #:exists 'replace))
+  (let ((contents `(string-append
+                    (format "%!PS-Adobe-3.0~n%%Pages: ~a~n%%BoundingBox: ~a ~a ~a ~a~n%%DocumentData: Clean7Bit~n%%LanguageLevel: 2~n~n"
+                            ,(length pages) ,@bounding-box)
+                    ,@(map apply-page pages (build-list (length pages) (lambda (n) (+ 1 n)))))))
+    (if filename
+        `(display-to-file ,contents ,(build-path filename) #:mode 'text #:exists 'replace)
+        `(printf ,contents))))
 
 (define-macro (def-pt-op name op)
   `(define (,name pt term)
