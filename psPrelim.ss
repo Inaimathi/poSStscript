@@ -4,6 +4,19 @@
          "syntax.ss"
          "primitives.ss")
 
+(define (color . a-color)
+  (define (break-string string num)
+    (cond ((< (string-length string) num) '())
+          (else (cons (substring string 0 num)
+                      (break-string (substring string num) num)))))
+  (define (digit->color% d)
+    (string->number (real->decimal-string (/ (string->number d 16) 255))))
+  (let ((c (if (string? (car a-color))
+               (map digit->color% (break-string (car a-color) 2))
+               a-color)))
+    (cond ((= (length c) 3) (apply setrgbcolor c))
+          ((= (length c) 4) (apply setcymkcolor c)))))
+
 (define (shape pts)
   (path (moveto (car pts))
         (apply string-append (map lineto (cdr pts)))))
@@ -18,19 +31,18 @@
          (c2 (pt+ (pt+ pt `(,width . 0)) `(,(- r2) . ,r2)))
          (c3 (pt- (pt+ pt `(,width . ,height)) r3))
          (c4 (pt+ (pt+ pt `(0 . ,height)) `(,r4 . ,(- r4)))))
-    (path 
-     (arc c1 r1 180 270)
-     (arc c2 r2 270 360)
-     (arc c3 r3 0 90)
-     (arc c4 r4 90 180))))
+    (path (arc c1 r1 180 270)
+          (arc c2 r2 270 360)
+          (arc c3 r3 0 90)
+          (arc c4 r4 90 180))))
 
 (define (rect pt width height)
   (let* ((x (car pt)) (y (cdr pt))
-        (wx (+ x width)) (hy (+ y height)))
+         (wx (+ x width)) (hy (+ y height)))
     (shape `(,pt ,(cons x hy) ,(cons wx hy) ,(cons wx y)))))
 
 (define (square pt width)
-    (shape `(,pt ,(pt+ pt (cons 0 width)) ,(pt+ pt width) ,(pt+ pt (cons width 0)))))
+  (shape `(,pt ,(pt+ pt (cons 0 width)) ,(pt+ pt width) ,(pt+ pt (cons width 0)))))
 
 (define (circle pt radius)
   (path (arc pt radius 0 360)))

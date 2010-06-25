@@ -27,9 +27,12 @@
            (else pt))))
 
 (define-macro (def-keyword name . args)
-  `(define (,name ,@args)
-       (format ,(string-append (apply string-append (build-list (length args) (lambda (n) "~a "))) (symbol->string name) "~n")
-               ,@args)))
+  `(define (,name . arguments)
+     (if (null? arguments)
+         ,(format "~a~n" name)
+         (apply (lambda ,args
+                  (format ,(string-append (apply string-append (build-list (length args) (lambda (n) "~a "))) (symbol->string name) "~n")
+                          ,@args)) arguments))))
 
 (define-macro (def-point-fn name pts . args)
   (define (pt-args pts)
