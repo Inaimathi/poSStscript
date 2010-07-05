@@ -1,4 +1,4 @@
-#lang scheme
+;;#lang scheme
 ;;psPrelim.ss
 (require mzlib/defmacro
          "syntax.ss"
@@ -16,6 +16,19 @@
                a-color)))
     (cond ((= (length c) 3) (apply setrgbcolor c))
           ((= (length c) 4) (apply setcymkcolor c)))))
+
+(define (text pt message
+              #:font (a-font (font "Helvetica" 14))
+              #:stroke-width (stroke-width 0)
+              #:stroke-color (stroke-color "000000")
+              #:fill (a-fill "000000"))
+  (with (color a-fill) a-font
+        (moveto pt)
+        (fill (charpath #t message))
+        (moveto pt)
+        (color stroke-color)
+        (setlinewidth stroke-width)
+        (stroke (charpath #f message))))
 
 (define (shape pts)
   (path (moveto (car pts))
@@ -51,6 +64,10 @@
 (define (circle pt radius)
   (path (arc pt radius 0 360)))
 
+(define (table pt columns)
+  (with (font "Helvetica" 32) (color "dddddd")
+        (text pt "Hello")))
+
 ;; (ps #f (0 0 612 792)
 ;;     (page 
 ;;      (translate 500 500)
@@ -61,4 +78,4 @@
 ;;     (page (stroke (circle '(150 . 50) 150)))
 ;;     (page (stroke (circle '(50 . 0) 200))))
 
-(provide (all-defined-out))
+;;(provide (all-defined-out))
