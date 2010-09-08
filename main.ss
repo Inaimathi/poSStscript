@@ -145,9 +145,6 @@
 (define (circle pt radius)
   (path (arc pt radius 0 360)))
 
-(define (table pt columns)
-  (text pt "Hello" #:font (font "Helvetica" 32) #:color "000000"))
-
 ;; (ps "test0.ps" (0 0 612 792)
 ;;     (page 
 ;;      (translate 500 500)

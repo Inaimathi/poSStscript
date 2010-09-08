@@ -1,6 +1,9 @@
 #lang scheme
 (require "main.ss")
 
+(define (table pt columns)
+  (text pt "Hello" #:font (font "Helvetica" 32) #:color "000000"))
+
 (define (text-field point label #:font (label-font (font "Helvetica" 6)) #:width (width #f) #:height (height 20))
   (let* ((font-size (string->number (second (pregexp-match #px"(\\d+?) scalefont" label-font))))
          (box-width (if width width (* font-size (string-length label)))))
