@@ -1,4 +1,4 @@
-;;#lang scheme
+#lang scheme
 ;;psPrelim.ss
 (require mzlib/defmacro
          "syntax.ss"
@@ -19,16 +19,18 @@
 
 (define (text pt message
               #:font (a-font (font "Helvetica" 14))
-              #:stroke-width (stroke-width 0)
-              #:stroke-color (stroke-color "000000")
-              #:fill (a-fill "000000"))
+              #:stroke-width (stroke-width #f)
+              #:stroke-color (stroke-color #f)
+              #:color (a-fill "000000"))
   (with (color a-fill) a-font
         (moveto pt)
         (fill (charpath #t message))
         (moveto pt)
-        (color stroke-color)
-        (setlinewidth stroke-width)
-        (stroke (charpath #f message))))
+        (if (or stroke-color stroke-width)
+            (with (if stroke-color (color stroke-color) "")
+                  (if stroke-width (setlinewidth stroke-width) "")
+                  (stroke (charpath #f message)))
+            "")))
 
 (define (shape pts)
   (path (moveto (car pts))
@@ -65,10 +67,9 @@
   (path (arc pt radius 0 360)))
 
 (define (table pt columns)
-  (with (font "Helvetica" 32) (color "dddddd")
-        (text pt "Hello")))
+  (text pt "Hello" #:font (font "Helvetica" 32) #:color "000000"))
 
-;; (ps #f (0 0 612 792)
+;; (ps "test0.ps" (0 0 612 792)
 ;;     (page 
 ;;      (translate 500 500)
 ;;      (for 0 10 360
@@ -78,4 +79,12 @@
 ;;     (page (stroke (circle '(150 . 50) 150)))
 ;;     (page (stroke (circle '(50 . 0) 200))))
 
-;;(provide (all-defined-out))
+;; (ps "test1.ps" (0 0 612 792)
+;;       (page (translate 50 50)
+;;             (table '(100 . 100) '(la la la la))
+;;             (stroke (square '(0 . 0) 100))))
+
+;; (ps "test2.ps" (0 0 612 792)
+;;     (page (text-field '(50 . 50) "Hello")))
+
+(provide (all-defined-out))

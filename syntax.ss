@@ -16,7 +16,9 @@
                             ,(length pages) ,@bounding-box)
                     ,@(map apply-page pages (build-list (length pages) (lambda (n) (+ 1 n)))))))
     (if filename
-        `(display-to-file ,contents ,(build-path filename) #:mode 'text #:exists 'replace)
+        (let ((destination (cond ((string? filename) (string->path filename))
+                                 ((path? filename) filename))))
+          `(display-to-file ,contents ,destination #:mode 'text #:exists 'replace))
         `(printf ,contents))))
 
 (define-macro (def-pt-op name op)
