@@ -1,12 +1,11 @@
 #lang scheme
-(require "main.ss"
-         "syntax.ss"
-         "primitives.ss")
+(require "main.ss")
 
-(define (text-field point label #:font (a-font (font "Helvetica" 14)) #:width (width #f) #:height (height 20))
-      (with (translate (car point) (cdr point))
-            (stroke (rect '(0 . 0) width height))
-            (with a-font (color "666666")
-                  (text '(3 . 3) label))))
+(define (text-field point label #:font (label-font (font "Helvetica" 6)) #:width (width #f) #:height (height 20))
+  (let* ((font-size (string->number (second (pregexp-match #px"(\\d+?) scalefont" label-font))))
+         (box-width (if width width (* font-size (string-length label)))))
+    (with (translate (car point) (cdr point))
+          (stroke (rect '(0 . 0) box-width height))
+          (text '(3 . 3) label #:font label-font #:color "666666"))))
       
 (provide (all-defined-out))
