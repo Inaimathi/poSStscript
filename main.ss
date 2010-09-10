@@ -50,12 +50,11 @@
   `(define (,name . body)
      (string-append (string-append ,open "\n") (apply string-append body) (string-append ,close "\n"))))
 
-;;;PostScript Primitive declarations
-;;Point operations (because they're really REALLY common
+;;Point operations (because they seem to be fairly common)
 (def-pt-op pt- -)
 (def-pt-op pt+ +)
 
-;;Primitives
+;;;Postscript Primitives
 (define (show msg) (format "(~a) show~n" msg))
 (define (charpath flag msg) (format "(~a) ~a charpath~n" msg (if flag "true" "false")))
 
@@ -123,7 +122,7 @@
   (let* ((rad (cond ((number? radius) (build-list 4 (lambda (n) radius)))
                     ((= 2 (length radius)) (list (cadr radius) (car radius) (car radius) (cadr radius)))
                     (else (take radius 4))))
-         ;;;These are out of order so that the radius can be in clockwise order from the bottom left 
+         ;;These are out of order so that the radius can be in clockwise order from the bottom left 
          (r1 (first rad)) (r2 (fourth rad)) (r3 (third rad)) (r4 (second rad))
          (c1 (pt+ pt r1))
          (c2 (pt+ (pt+ pt `(,width . 0)) `(,(- r2) . ,r2)))
