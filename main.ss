@@ -19,7 +19,7 @@
                     ,@(map apply-page pages (build-list (length pages) (lambda (n) (+ 1 n)))))))
     (if filename
         (let ((destination (cond ((string? filename) (string->path filename))
-                                 ((path? filename) filename))))
+                                 (else filename))))
           `(display-to-file ,contents ,destination #:mode 'text #:exists 'replace))
         `(printf ,contents))))
 
