@@ -18,8 +18,7 @@
                             ,(length pages) ,@bounding-box)
                     ,@(map apply-page pages (build-list (length pages) (lambda (n) (+ 1 n)))))))
     (if filename
-        (let ((destination (cond ((string? filename) (string->path filename))
-                                 (else filename))))
+        (let ((destination (if (string? filename) (string->path filename) filename)))
           `(display-to-file ,contents ,destination #:mode 'text #:exists 'replace))
         `(printf ,contents))))
 
