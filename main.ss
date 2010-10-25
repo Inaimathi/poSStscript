@@ -1,5 +1,4 @@
 #lang scheme
-;;psPrelim.ss
 (require mzlib/defmacro)
 
 ;;;Syntax declarations
@@ -47,7 +46,7 @@
 
 (define-macro (def-block name close open)
   `(define (,name . body)
-     (string-append (string-append ,open "\n") (apply string-append body) (string-append ,close "\n"))))
+     (string-append ,open "\n" (apply string-append body) ,close "\n")))
 
 ;;Point operations (because they seem to be fairly common)
 (def-pt-op pt- -)
@@ -82,17 +81,20 @@
 
 ;;;Complex primitives and light abstractions
 (define (color . a-color)
-  (define (break-string string num)
-    (cond ((< (string-length string) num) '())
-          (else (cons (substring string 0 num)
-                      (break-string (substring string num) num)))))
-  (define (digit->color% d)
-    (string->number (real->decimal-string (/ (string->number d 16) 255))))
-  (let ((c (if (string? (car a-color))
-               (map digit->color% (break-string (car a-color) 2))
-               a-color)))
+  "Convenience function for colors; accepts colors in 'RRGGBB', 'CCMMYYKK', (r g b) or (c m y k) format
+   and outputs the appropriate PostScript color directive."
+  (let* ((digit->color% (lambda (d)
+                          (string->number (real->decimal-string (/ (string->number d 16) 255)))))
+         (c (if (string? (car a-color))
+                (map digit->color% (break-string (car a-color) 2))
+                a-color)))
     (cond ((= (length c) 3) (apply setrgbcolor c))
           ((= (length c) 4) (apply setcymkcolor c)))))
+
+(define (break-string string num)
+  (cond ((< (string-length string) num) '())
+        (else (cons (substring string 0 num)
+                    (break-string (substring string num) num)))))
 
 (define (text pt message
               #:font (a-font (font "Helvetica" 14))
@@ -110,10 +112,12 @@
             "")))
 
 (define (shape pts)
+  "Draws a shape from a series of points by using lineto"
   (path (moveto (car pts))
         (apply string-append (map lineto (cdr pts)))))
 
 (define (curve-shape pts)
+  "same as `shape`, but using curveto. If a third one comes up, abstract the essence"
   (path (moveto (car pts))
         (apply string-append (map curveto(cdr pts)))))
 
@@ -137,28 +141,28 @@
          (wx (+ x width)) (hy (+ y height)))
     (shape `(,pt ,(cons x hy) ,(cons wx hy) ,(cons wx y)))))
 
-(define (square pt width)
-  (shape `(,pt ,(pt+ pt (cons 0 width)) ,(pt+ pt width) ,(pt+ pt (cons width 0)))))
+(define (square pt width) (rect pt width width)) ;shorter than implementing it independantly
 
 (define (circle pt radius)
   (path (arc pt radius 0 360)))
 
-;; (ps "test0.ps" (0 0 612 792)
-;;     (page 
-;;      (translate 500 500)
-;;      (for 0 10 360
-;;           (scale 1.1 1.1)
-;;           (with (rotate)
-;;                 (stroke (circle '(200 . 300) 100)))))
-;;     (page (stroke (circle '(150 . 50) 150)))
-;;     (page (stroke (circle '(50 . 0) 200))))
+(define (examples)
+  (begin
+    (ps "test0.ps" (0 0 612 792)
+        (page
+         (text '(50 . 50) "This page should be empty except for this text")
+         (translate 500 500)
+         (for 0 10 360
+              (scale 1.1 1.1)
+              (with (rotate)
+                    (stroke (circle '(200 . 300) 100)))))
+        (page (stroke (circle '(150 . 50) 150)))
+        (page (stroke (circle '(50 . 0) 200))))
 
-;; (ps "test1.ps" (0 0 612 792)
-;;       (page (translate 50 50)
-;;             (table '(100 . 100) '(la la la la))
-;;             (stroke (square '(0 . 0) 100))))
-
-;; (ps "test2.ps" (0 0 612 792)
-;;     (page (text-field '(50 . 50) "Hello")))
+    
+    (ps "test1.ps" (0 0 612 792)
+        (page (translate 50 50)
+              (text '(0 . 0) "Hello there")
+              (stroke (square '(0 . 0) 100))))))
 
 (provide (all-defined-out))
